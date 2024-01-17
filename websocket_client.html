@@ -4,28 +4,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebSocket Example</title>
+  <title>Socially</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
+  <h3>Socially 💬</h3>
+  <input type="text">
+  <button>Send</button>
+  <div id="message-container" class="message-container">
+    <ul id="message" class="message">HEHE</ul>
+    <ul id="message" class="message">HEHE</ul>
+    <ul id="message" class="message">HEHE</ul>
 
-  <script>
-    const socket = new WebSocket("ws://localhost:8000/ws");
-
-    socket.onopen = () => {
-      socket.send("Hello, WebSocket Server!");
-    };
-
-    socket.onmessage = (event) => {
-      console.log("Server says: " + event.data);
-    };
-
-    // Close the WebSocket connection when done
-    socket.onclose = () => {
-      console.log("WebSocket connection closed.");
-    };
-  </script>
-
+  </div>
 </body>
+<script src="websocket_client.js"></script>
 
 </html>
