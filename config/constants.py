@@ -8,6 +8,14 @@ env_file_path = os.path.join(os.path.dirname(os.path.dirname(current_script_path
 
 creds= dotenv_values(env_file_path)
 
+#Twilio
 TWILIO_SID= creds.get('TWILIO_SID')
 AUTH_TOKEN= creds.get('AUTH_TOKEN')
 
+#Vonage
+API_SECRET= creds.get("API_SECRET")
+API_KEY= creds.get("API_KEY")
+
+#Redis
+REDIS_PORT= creds.get("REDIS_PORT")
+REDIS_HOST= creds.get("REDIS_HOST")
