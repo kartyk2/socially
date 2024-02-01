@@ -1,6 +1,7 @@
 from sqlalchemy import Column, VARCHAR, TIMESTAMP, INTEGER
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
+from datetime import datetime
 
 Base = declarative_base()
 
@@ -14,8 +15,7 @@ class User(Base):
     mobile = Column(VARCHAR)
     email = Column(VARCHAR)
     about = Column(VARCHAR)
-    password = Column(VARCHAR)
-    joined = Column(TIMESTAMP)
+    joined = Column(TIMESTAMP, default= datetime.now())
 
 class UserActivity(Base):
     __tablename__ = 'user_activity'
