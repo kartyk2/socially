@@ -6,3 +6,12 @@ class MobileLogin(BaseModel):
 class ValidateOTP(BaseModel):
     phone: str
     otp: str
+
+
+class UserDetails(BaseModel):
+    username: str 
+    name: str
+    mobile: str
+    email: str|None
+    about: str|None
+
