@@ -24,7 +24,6 @@ async def mobile_login(mobile_login: MobileLogin):
     otp= randint(10000, 999999)
     
     try:
-        print(client)
         if redis_client.get(mobile_login.phone):
             return JSONResponse(content= "Please wait for 30 seconds before requesting another otp", status_code= 429)
             
@@ -35,17 +34,15 @@ async def mobile_login(mobile_login: MobileLogin):
                 "text": f"You OTP for Socially login is {otp}. Stay safe.",
             }
         )
-        print(responseData)
         if responseData["messages"][0]["status"] == "0":
-            redis_client.setex(name=mobile_login.phone, value=otp, time= timedelta(seconds=30))
+            redis_client.setex(name=mobile_login.phone, value=otp, time= timedelta(minutes=10))
             logger.info(f"Message sent successfully to {mobile_login.phone}.")
         else:
             logger.info(f"Message failed with error: {responseData['messages'][0]['error-text']}")
             return JSONResponse(status_code=500, content= "Failed to send OTP")
 
     except Exception as error:
-        print(traceback.format_exc())
-        logger.info(error)
+        logger.info(traceback.format_exc())
 
 
 @user_manager.post('/validate_otp')
@@ -61,7 +58,7 @@ async def validate_otp(otp_details: ValidateOTP , db: Session = Depends(get_db))
             """
             check if the user is already signed up
             """
-            returning_user= db.query(User).filter(User.mobile == otp_details.phone).with_entities(User.id, User.username)
+            returning_user= db.query(User).filter(User.mobile == otp_details.phone).with_entities(User.id, User.username).first()
             if returning_user:
                 """
                     return the access token and the id for the user
@@ -73,18 +70,26 @@ async def validate_otp(otp_details: ValidateOTP , db: Session = Depends(get_db))
                 }
                 
                 response= {
+                    "user_registered": True,
                     "user": returning_user,
                     "access_token": jwt.encode(access_token_payload, key= ENCODING_SECRET_KEY)
                 }
+
+                return JSONResponse(content= response)
                 
             else:
                 response= {
                     "user_registered": False,
                     "phone": otp_details.phone
                 }
-                
-                JSONResponse(content= response, status_code= status.HTTP_200_OK)
+          
+                return JSONResponse(content= response)
                 
     except Exception as error:
-        logger.info(error)
+        logger.info(traceback.format_exc())
 
+
+# @user_manager.post('/register_user')
+# async def register_user(user_details: UserDetails , db: Session = Depends(get_db)):
+#     """
+#     """
