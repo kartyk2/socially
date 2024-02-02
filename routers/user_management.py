@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 
 from models.models import User, UserActivity
+from schemas.users_mangement import UserDetails
   
 from config.database_config import get_db
 from config.constants import API_KEY, API_SECRET, ENCODING_SECRET_KEY
@@ -43,6 +44,7 @@ async def mobile_login(mobile_login: MobileLogin):
 
     except Exception as error:
         logger.info(traceback.format_exc())
+        return JSONResponse(content= traceback.format_exception_only(error), status_code= status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @user_manager.post('/validate_otp')
@@ -87,9 +89,20 @@ async def validate_otp(otp_details: ValidateOTP , db: Session = Depends(get_db))
                 
     except Exception as error:
         logger.info(traceback.format_exc())
+        return JSONResponse(content= traceback.format_exception_only(error), status_code= status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# @user_manager.post('/register_user')
-# async def register_user(user_details: UserDetails , db: Session = Depends(get_db)):
-#     """
-#     """
+@user_manager.post('/register_user')
+async def register_user(user_details: UserDetails , db: Session = Depends(get_db)):
+    """
+    """
+    try:
+        new_user= User(**user_details.model_dump(exclude_unset= True, exclude_defaults= True, exclude_none= True))
+        db.add(new_user)
+        db.commit()
+        
+        return JSONResponse(content= {"user_registered": True, "user_created": user_details.username}, status_code= status.HTTP_201_CREATED)
+    except Exception as error:
+        logger.info(traceback.format_exception())
+        return JSONResponse(content= traceback.format_exception_only(error), status_code= status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
