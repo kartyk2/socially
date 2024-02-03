@@ -1,18 +1,24 @@
-const socket = new WebSocket("ws://localhost:8000/ws");
+function getOnline() {
+  const user_id = document.getElementById('user-id-input');
+  const user = user_id.value;
+  console.log(user);
 
-socket.onopen = () => {
-  socket.send("Hello, WebSocket Server!");
-};
+  const socket = new WebSocket(`ws://localhost:8000/ws/${user}`);
 
-socket.onmessage = (event) => {
-  console.log("Server says: " + event.data);
-};
+  socket.onopen = () => {
+    socket.send("Hello, WebSocket Server!");
+  };
 
-// Close the WebSocket connection when done
-socket.onclose = () => {
-  console.log("WebSocket connection closed.");
-};
+  socket.onmessage = (event) => {
+    console.log("Server says: " + event.data);
+  };
 
-socket.onerror = (error) => {
-    console.log(error)
+  // Close the WebSocket connection when done
+  socket.onclose = () => {
+    console.log("WebSocket connection closed.");
+  };
+
+  socket.onerror = (error) => {
+    console.log(error);
+  };
 }

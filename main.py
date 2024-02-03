@@ -11,11 +11,13 @@ app = FastAPI(title= "Socially")
 app.include_router(user_manager)
 
 
-@app.websocket("/ws")
+@app.websocket("/ws/{userid}")
 async def websocket_endpoint(websocket: WebSocket):
     acceptence= await websocket.accept()
     while True:
         data = await websocket.receive_text()
+        print(data)
+        websocket.send_text()
         await websocket.send_text(f"You sent: {data}")
 
 
