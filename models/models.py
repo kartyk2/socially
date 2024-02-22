@@ -6,7 +6,6 @@ from uuid import uuid4
 
 Base = declarative_base()
 
-
 class User(Base):
     __tablename__ = 'users'
 
@@ -22,3 +21,13 @@ class UserActivity(Base):
     __tablename__ = 'user_activity'
     user_id = Column(UUID(as_uuid=True), primary_key=True)
     last_seen = Column(TIMESTAMP)
+
+class Conversation(Base):
+    __tablename__ =  'conversation'
+    id = Column(UUID(as_uuid= True), primary_key= True, default= uuid4)
+    sender = Column(UUID(as_uuid= True))
+    receiver = Column(UUID(as_uuid= True))
+    message = Column(VARCHAR)
+    sent_at = Column(TIMESTAMP)
+    received_At = Column(TIMESTAMP)
+    read_at = Column(TIMESTAMP)

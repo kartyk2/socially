@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from uuid import UUID
 
 class MobileLogin(BaseModel):
     phone: str
@@ -17,3 +18,8 @@ class UserDetails(BaseModel):
     mobile: str
     email: str|None = None
     about: str|None = None
+
+class Message(BaseModel):
+    sender: UUID
+    receiver: UUID
+    text: str
