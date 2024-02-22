@@ -5,6 +5,7 @@ from schemas.users_mangement import MobileLogin, ValidateOTP
 from random import randint
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
+from sqlalchemy import or_, func
 
 from models.models import User, UserActivity
 from schemas.users_mangement import UserDetails
@@ -106,3 +107,14 @@ async def register_user(user_details: UserDetails , db: Session = Depends(get_db
         logger.info(traceback.format_exception())
         return JSONResponse(content= traceback.format_exception_only(error), status_code= status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+
+@user_manager.get('/find_users')
+async def find_users(keyword: str, db: Session = Depends(get_db)):
+    try:
+        filters= [func.lower(User.username).like(f'%{keyword.lower()}%'), func.lower(User.name).like(f'%{keyword.lower()}%')]
+        users= db.query(User).filter(or_(*filters)).all()
+        return users
+    
+    except Exception as error:
+        logger.error(traceback.format_exception_only(error))
+        
