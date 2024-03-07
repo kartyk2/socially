@@ -1,4 +1,14 @@
 from fastapi import WebSocket
+import socketio
+import asyncio
+
+sio = socketio.AsyncServer(
+    async_mode='asgi',
+    cors_allowed_origins=["*"]
+)
+
+sio_app = socketio.ASGIApp(sio, socketio_path='sockets')
+
 
 class ConnectionManager:
     def __init__(self):
