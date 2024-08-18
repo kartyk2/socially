@@ -11,14 +11,16 @@ from models.models import User, UserActivity
 from schemas.users_mangement import UserDetails
   
 from config.database_config import get_db
-from config.constants import API_KEY, API_SECRET, ENCODING_SECRET_KEY
+from config.constants import get_settings
 from config.log_config import Logger
 from config.redis_config import redis_client
 import vonage, jwt, traceback
 
 logger= Logger().get_logger()
+settings= get_settings()
+
 user_manager = APIRouter()
-client = vonage.Client(key=API_KEY, secret=API_SECRET)
+client = vonage.Client(key=settings.api_key, secret=settings.api_secret)
 
 
 @user_manager.post('/mobile_login')
@@ -75,7 +77,7 @@ async def validate_otp(otp_details: ValidateOTP , db: Session = Depends(get_db))
                 response= {
                     "user_registered": True,
                     "user": returning_user,
-                    "access_token": jwt.encode(access_token_payload, key= ENCODING_SECRET_KEY)
+                    "access_token": jwt.encode(access_token_payload, key= settings.encoding_secret_key)
                 }
 
                 return JSONResponse(content= response)

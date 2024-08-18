@@ -1,4 +1,4 @@
-socially-env
+socially-venv
 .env
 logs/
 __pycache__/

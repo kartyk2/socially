@@ -1,5 +1,5 @@
 import redis
+from config.constants import get_settings
 
-from config.constants import REDIS_HOST, REDIS_PORT
-
-redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
+settings= get_settings()
+redis_client = redis.Redis(host=settings.redis_host, port=settings.redis_port, decode_responses=True)
