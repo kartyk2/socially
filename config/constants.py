@@ -40,6 +40,10 @@ class Settings(BaseSettings):
     encoding_secret_key: str = creds.get("ENCODING_SECRET_KEY")
     encoding_algorithm: str = creds.get("ENCODING_ALGORITHM", "HS256")
 
+    # Kafka
+    kakfa_host_server: str = creds.get("KAFKA_BOOTSTRAP_SERVERS")
+    kakfa_topic: str = creds.get("KAFKA_TOPIC")
+
     # Helper function to encode the password
     def encode_password(self, password: str) -> str:
         return quote(password, safe='')

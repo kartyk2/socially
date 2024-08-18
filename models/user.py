@@ -5,7 +5,6 @@ from uuid import uuid4
 from config.database_config import Base
 
 
-
 class User(Base):
     __tablename__ = 'users'
 
