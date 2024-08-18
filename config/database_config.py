@@ -1,23 +1,13 @@
+from sqlalchemy.orm import declarative_base
 from sqlalchemy import URL, create_engine
 from sqlalchemy.orm import sessionmaker
-from config.constants import (
-    DRIVERNAME,
-    DB_HOSTNAME,
-    DB_NAME,
-    DB_PASSWORD,
-    DB_USERNAME
-)
+from config.constants import settings
 
-DB_URI= URL.create(
-    drivername= DRIVERNAME,
-    host= DB_HOSTNAME,
-    username= DB_USERNAME,
-    password= DB_PASSWORD,
-    database= DB_NAME
-)
-
-engine= create_engine(DB_URI)
+engine= create_engine(settings.pg_dsn.unicode_string())
 SessionLocal= sessionmaker(bind= engine)
+
+
+Base = declarative_base()
 
 # yield db connection
 def get_db():

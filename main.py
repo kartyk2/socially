@@ -2,11 +2,19 @@ from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy import create_engine, text
 from config.constants import get_settings
+from config.database_config import engine, Base
 from config.redis_config import redis_client
+from contextlib import asynccontextmanager
+from models import *
 import time
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
+
 settings= get_settings()
 
 pg_engine = create_engine(settings.pg_dsn.unicode_string())

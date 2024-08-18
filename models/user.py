@@ -1,10 +1,10 @@
 from sqlalchemy import Column, VARCHAR, TIMESTAMP, INTEGER
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 from uuid import uuid4
+from config.database_config import Base
 
-Base = declarative_base()
+
 
 class User(Base):
     __tablename__ = 'users'
@@ -31,3 +31,4 @@ class Conversation(Base):
     sent_at = Column(TIMESTAMP)
     received_At = Column(TIMESTAMP)
     read_at = Column(TIMESTAMP)
+

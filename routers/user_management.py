@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, func
 
-from models.models import User, UserActivity
+from models.user import User, UserActivity
 from schemas.users_mangement import UserDetails
   
 from config.database_config import get_db
