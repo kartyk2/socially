@@ -3,21 +3,26 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import create_engine, text
 from config.constants import get_settings
 from config.database_config import engine, Base
-from config.redis_config import redis_client
+from config.log_config import Logger
+from config.clients import redis_client
 from contextlib import asynccontextmanager
 from models import *
+from routers import user_management
 import time
+
+settings= get_settings()
+
+success_logger= Logger.get_success_logger()
+error_logger= Logger.get_error_logger()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     yield
 
-app = FastAPI(lifespan=lifespan)
-
-settings= get_settings()
-
-pg_engine = create_engine(settings.pg_dsn.unicode_string())
+app = FastAPI(lifespan=lifespan, title= "Socially")
+app.include_router(user_management.user_manager, prefix= '/user-management', tags=["user-management"])
 
 # Middleware to log the time taken for each request
 @app.middleware("http")
@@ -28,31 +33,18 @@ async def add_process_time_header(request: Request, call_next):
     response.headers["X-Process-Time"] = str(process_time)
     return response
 
-# Middleware to handle global exceptions
-@app.middleware("http")
-async def handle_exceptions(request: Request, call_next):
-    try:
-        response = await call_next(request)
-        return response
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"message": "An internal error occurred. Please try again later."},
-        )
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the WhatsApp Clone Backend!"}
+    return {"message": "Welcome to the Socially Backend!"}
 
 @app.get("/healthcheck")
 async def healthcheck():
     try:
-        # Check Redis connection
         if not redis_client.ping():
             raise HTTPException(status_code=500, detail="Cannot connect to Redis")
         
-        # Check PostgreSQL connection
-        with pg_engine.connect() as conn:
+        with engine.connect() as conn:
             conn.execute(text("SELECT NOW()"))
         
         return {"status": "ok", "time": time.strftime("%Y-%m-%d %H:%M:%S")}
