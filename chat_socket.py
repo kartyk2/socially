@@ -34,7 +34,7 @@ async def disconnect(sid):
 
 @sio.event
 async def message(sid, data):
-    user_id = await redis_client.get(f"socket:{sid}")
+    user_id = redis_client.get(f"socket:{sid}")
     if user_id:
         message_payload = {
             "user_id": user_id,
