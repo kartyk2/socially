@@ -1,4 +1,15 @@
+# Virtual environment
 socially-venv
+
+# Configuration and secret files
 .env
+
+# Logs
 logs/
-__pycache__/
+app_logs.log
+
+# Compiled Python files
+__pycache__
+
+# Unnecessary or misnamed directory
+socially_env

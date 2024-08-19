@@ -3,7 +3,7 @@ from sqlalchemy import URL, create_engine
 from sqlalchemy.orm import sessionmaker
 from config.constants import settings
 
-engine= create_engine(settings.pg_dsn)
+engine= create_engine(settings.pg_dsn.unicode_string())
 SessionLocal= sessionmaker(bind= engine)
 
 

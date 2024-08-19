@@ -1,6 +1,6 @@
 from functools import lru_cache
-from typing import Optional
-from pydantic import PostgresDsn, RedisDsn, model_validator
+from typing import List, Optional
+from pydantic import PostgresDsn, RedisDsn, AnyUrl, model_validator
 from pydantic_settings import BaseSettings
 from dotenv import dotenv_values
 import os
@@ -41,16 +41,21 @@ class Settings(BaseSettings):
     encoding_algorithm: str = creds.get("ENCODING_ALGORITHM", "HS256")
 
     # Kafka
-    kakfa_host_server: str = creds.get("KAFKA_BOOTSTRAP_SERVERS")
-    kakfa_topic: str = creds.get("KAFKA_TOPIC")
+    kafka_host: str = creds.get("KAFKA_HOST")
+    kafka_topic: str = creds.get("KAFKA_TOPIC")
+    kafka_bootstrap_servers: Optional[str] = None
+
+
 
     # Helper function to encode the password
     def encode_password(self, password: str) -> str:
         return quote(password, safe='')
 
-    # Combined validator for both Redis and PostgreSQL DSNs
+    # Combined validator for Redis, PostgreSQL
     @model_validator(mode='after')
     def assemble_dsns(self) -> 'Settings':
+        self.kafka_bootstrap_servers = self.kafka_host
+        
         if not self.redis_dsn:
             self.redis_dsn = RedisDsn.build(
                 scheme='redis',
@@ -69,7 +74,7 @@ class Settings(BaseSettings):
                 port=self.db_port,
                 path=f"{self.db_name or ''}"
             )
-        
+
         return self
 
 # Caching the settings instance

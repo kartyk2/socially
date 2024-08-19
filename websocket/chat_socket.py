@@ -30,7 +30,7 @@ async def message(sid, data):
     message_payload = {
         "user_id": next((uid for uid, socket_id in connected_clients.items() if socket_id == sid), None),
         "message": data,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now().isoformat()
     }
 
     kafka_producer.send('your_topic', value=message_payload)

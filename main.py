@@ -1,20 +1,22 @@
+import traceback
 from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy import create_engine, text
 import uvicorn
-from config.constants import _settings
+from config.constants import get_settings
 from config.database_config import engine, Base
 from config.log_config import Logger
 from config.clients import redis_client
+from kafka_config.producer import create_kafka_producer
 from contextlib import asynccontextmanager
 from models import *
 from routers import user_management
-from websocket.chat_socket import *
+from websocket.chat_socket import sio_app
 import time
 
 
-settings= _settings()
-
+settings= get_settings()
+kafka_producer=  create_kafka_producer()
 
 success_logger= Logger.get_success_logger()
 error_logger= Logger.get_error_logger()
@@ -47,15 +49,22 @@ def read_root():
 @app.get("/healthcheck")
 async def healthcheck():
     try:
-        if not redis_client.ping():
+        # Check Redis connection
+        if not await redis_client.ping():
             raise HTTPException(status_code=500, detail="Cannot connect to Redis")
-        
+
+        # Check PostgreSQL connection
         with engine.connect() as conn:
             conn.execute(text("SELECT NOW()"))
-        
+
+        # Check Kafka connection
+        kafka_producer.send('healthcheck_topic', value={"status": "ping"})
+        kafka_producer.flush()
+
         return {"status": "ok", "time": time.strftime("%Y-%m-%d %H:%M:%S")}
     
     except Exception as e:
+        print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
 
