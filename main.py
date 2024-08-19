@@ -1,3 +1,4 @@
+import threading
 import traceback
 from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse
@@ -7,6 +8,7 @@ from config.constants import get_settings
 from config.database_config import engine, Base
 from config.log_config import Logger
 from config.clients import redis_client
+from kafka_config.consumer import consume_messages, kafka_consumer
 from kafka_config.producer import create_kafka_producer
 from contextlib import asynccontextmanager
 from models import *
@@ -25,10 +27,16 @@ error_logger= Logger.get_error_logger()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
+    thread = threading.Thread(target=consume_messages, daemon=True)
+    thread.start()
+    
     yield
+    kafka_consumer.close()
+    thread.join() 
 
+    
 app = FastAPI(lifespan=lifespan, title= "Socially")
-app.mount("/", sio_app)
+app.mount("/web_socket", sio_app)
 
 app.include_router(user_management.user_manager, prefix= '/user-management', tags=["user-management"])
 
@@ -50,7 +58,7 @@ def read_root():
 async def healthcheck():
     try:
         # Check Redis connection
-        if not await redis_client.ping():
+        if not redis_client.ping():
             raise HTTPException(status_code=500, detail="Cannot connect to Redis")
 
         # Check PostgreSQL connection
@@ -58,13 +66,14 @@ async def healthcheck():
             conn.execute(text("SELECT NOW()"))
 
         # Check Kafka connection
-        kafka_producer.send('healthcheck_topic', value={"status": "ping"})
+        print("here")
+        response= kafka_producer.send(settings.kafka_topic, value={"status": "ping"})
         kafka_producer.flush()
 
         return {"status": "ok", "time": time.strftime("%Y-%m-%d %H:%M:%S")}
     
     except Exception as e:
-        print(traceback.format_exc())
+        error_logger.error("Exception occurred", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
