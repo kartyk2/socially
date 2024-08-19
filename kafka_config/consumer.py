@@ -13,7 +13,8 @@ kafka_consumer = KafkaConsumer(
     bootstrap_servers=settings.kafka_bootstrap_servers,
     value_deserializer=lambda m: json.loads(m.decode('utf-8')),
     auto_offset_reset='earliest',
-    enable_auto_commit=True
+    enable_auto_commit=True,
+    group_id=settings.kafka_group_id
 )
 
 def consume_messages():

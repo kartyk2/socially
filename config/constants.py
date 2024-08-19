@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     # Kafka
     kafka_host: str = creds.get("KAFKA_HOST")
     kafka_topic: str = creds.get("KAFKA_TOPIC")
+    kafka_group_id: str = creds.get("KAFKA_GROUP")
     kafka_bootstrap_servers: Optional[str] = None
 
 

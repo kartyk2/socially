@@ -66,7 +66,6 @@ async def healthcheck():
             conn.execute(text("SELECT NOW()"))
 
         # Check Kafka connection
-        print("here")
         response= kafka_producer.send(settings.kafka_topic, value={"status": "ping"})
         kafka_producer.flush()
 
