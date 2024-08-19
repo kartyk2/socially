@@ -7,7 +7,6 @@ settings= get_settings()
 api_logger= Logger.get_api_info_logger()
 error_logger= Logger.get_error_logger()
 
-# Kafka Consumer setup
 kafka_consumer = KafkaConsumer(
     settings.kafka_topic,
     bootstrap_servers=settings.kafka_bootstrap_servers,

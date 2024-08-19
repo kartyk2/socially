@@ -13,3 +13,4 @@ __pycache__
 
 # Unnecessary or misnamed directory
 socially_env
+KafkaMagicConfig.db
