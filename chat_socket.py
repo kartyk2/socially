@@ -2,7 +2,7 @@ from kafka_config.producer import kafka_producer
 from config.constants import get_settings
 from datetime import datetime
 import socketio
-import uuid
+import uuid, uvicorn
 
 sio = socketio.AsyncServer(cors_allowed_origins="*", async_mode='asgi')
 sio_app = socketio.ASGIApp(sio)
@@ -13,7 +13,9 @@ connected_clients = {}
 @sio.event
 async def connect(sid, environ):
     user_id = str(uuid.uuid4())
+    
     connected_clients[user_id] = sid
+    
     print(f"User connected: {user_id}")
 
 @sio.event
@@ -31,6 +33,24 @@ async def message(sid, data):
         "message": data,
         "timestamp": datetime.now().isoformat()
     }
+    await sio.emit('welcome', {'message': 'Welcome to the chat!', 'user_id': data}, room=sid)
 
     kafka_producer.send(setting.kafka_topic, value=message_payload)
     print(f"Message sent to Kafka: {message_payload}")
+
+
+@sio.event
+async def hello(sid, data):
+    message_payload = {
+        "user_id": next((uid for uid, socket_id in connected_clients.items() if socket_id == sid), None),
+        "message": data,
+        "timestamp": datetime.now().isoformat()
+    }
+
+    kafka_producer.send(setting.kafka_topic, value=message_payload)
+    print(f"Message sent to Kafka: {message_payload}")
+
+
+
+if __name__ == "__main__":
+    uvicorn.run("chat_socket:sio_app", host='localhost', port=8001)

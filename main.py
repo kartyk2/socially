@@ -13,7 +13,7 @@ from kafka_config.producer import create_kafka_producer
 from contextlib import asynccontextmanager
 from models import *
 from routers import user_management
-from websocket.chat_socket import sio_app
+from chat_socket import sio_app
 import time
 
 
@@ -79,4 +79,4 @@ async def healthcheck():
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host='localhost', port=8000, reload= True)
+    uvicorn.run("main:app", host='localhost', port=8000)
