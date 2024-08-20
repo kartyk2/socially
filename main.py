@@ -12,7 +12,7 @@ from kafka_config.consumer import consume_messages, kafka_consumer
 from kafka_config.producer import create_kafka_producer
 from contextlib import asynccontextmanager
 from models import *
-from routers import user_management
+from routers import user_management, user_connections
 from chat_socket import sio_app
 import time
 
@@ -39,6 +39,7 @@ app = FastAPI(lifespan=lifespan, title= "Socially")
 app.mount("/web_socket", sio_app)
 
 app.include_router(user_management.user_manager, prefix= '/user-management', tags=["user-management"])
+app.include_router(user_connections.connection_manager, prefix= '/user-connections', tags=["user-connections"])
 
 # Middleware to log the time taken for each request
 @app.middleware("http")
