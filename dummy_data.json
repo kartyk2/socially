@@ -1,0 +1,39 @@
+{
+    "users": [
+        {
+            "username": "john_doe",
+            "name": "John Doe",
+            "mobile": "+1234567890",
+            "email": "john@example.com",
+            "about": "Just a regular guy."
+        },
+        {
+            "username": "jane_doe",
+            "name": "Jane Doe",
+            "mobile": "+0987654321",
+            "email": "jane@example.com",
+            "about": "A passionate developer."
+        },
+        {
+            "username": "alice_smith",
+            "name": "Alice Smith",
+            "mobile": "+1122334455",
+            "email": "alice@example.com",
+            "about": "Loves to explore new tech."
+        },
+        {
+            "username": "bob_jones",
+            "name": "Bob Jones",
+            "mobile": "+2233445566",
+            "email": "bob@example.com",
+            "about": "Avid reader and software engineer."
+        },
+        {
+            "username": "charlie_brown",
+            "name": "Charlie Brown",
+            "mobile": "+3344556677",
+            "email": "charlie@example.com",
+            "about": "Enjoys working on open-source projects."
+        }
+    ]
+}
