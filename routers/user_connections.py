@@ -6,6 +6,7 @@ from config.database_config import get_db
 from config.log_config import Logger
 from models import User, Connection
 from datetime import datetime
+from models.connections import ConnectionStatus
 from schemas.user_connection import ConnectionRequest, RespondToRequest, PendingRequestResponse
 from commons.helper import get_current_user
 
@@ -48,10 +49,12 @@ class UserConnection:
 
     def find_pending_requests(self, user_id: UUID):
         try:
-            pending_requests = self.db.query(Connection).filter(
+            pending_requests = (self.db.query(Connection).join(User, User.id == Connection.user_id)
+            .with_entities(Connection.user_id.label("sender_id"), User.name.label("sender_name"), Connection.id.label("id"), Connection.status)
+            .filter(
                 Connection.connected_user_id == user_id,
-                Connection.status == "pending"
-            ).all()
+                Connection.status == ConnectionStatus.PENDING
+            ).all())
             return pending_requests
         except Exception as e:
             error_logger.error(f"Error while finding pending requests for user {user_id}: {str(e)}")
@@ -64,10 +67,10 @@ class UserConnection:
                 return {"message": "Request not found."}
 
             if response == "accept":
-                connection.status = "accepted"
+                connection.status = ConnectionStatus.ACCEPTED
                 success_logger.info(f"Connection request {request_id} accepted.")
             elif response == "reject":
-                connection.status = "rejected"
+                connection.status = ConnectionStatus.REJECTED
                 success_logger.info(f"Connection request {request_id} rejected.")
             else:
                 return {"message": "Invalid response."}

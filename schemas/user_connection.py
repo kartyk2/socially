@@ -10,4 +10,5 @@ class RespondToRequest(BaseModel):
 class PendingRequestResponse(BaseModel):
     id: UUID
     sender_id: UUID
+    sender_name: str
     status: str
