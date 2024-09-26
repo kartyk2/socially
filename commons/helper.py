@@ -1,3 +1,4 @@
+from uuid import UUID
 import jwt
 from fastapi import Depends, HTTPException, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -12,7 +13,7 @@ security = HTTPBearer()
 settings= get_settings()
 
 class TokenPayload(BaseModel):
-    id: str
+    id: UUID
     username: str
     exp: datetime
 

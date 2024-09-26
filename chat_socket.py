@@ -1,6 +1,9 @@
+from commons.helper import TokenPayload, decode_jwt, get_current_user
 from kafka_config.producer import kafka_producer
 from config.clients import redis_client
 from config.constants import get_settings
+from config.database_config import DatabaseSessionsManager
+from models.user import User
 from datetime import datetime
 import socketio
 import uuid
@@ -14,6 +17,7 @@ settings = get_settings()
 async def connect_user(user_id, sid):
     redis_client.set(f"user:{user_id}", sid)
     redis_client.set(f"socket:{sid}", user_id)
+    print(f"User connected: {user_id}")
 
 async def disconnect_user(sid):
     user_id = redis_client.get(f"socket:{sid}")
@@ -22,16 +26,30 @@ async def disconnect_user(sid):
         redis_client.delete(f"socket:{sid}")
         print(f"User disconnected: {user_id}")
 
-@sio.event
-async def connect(sid, environ):
-    user_id = str(uuid.uuid4())
-    await connect_user(user_id, sid)
-    print(f"User connected: {user_id}")
+async def mark_user_online(user: uuid.UUID):
+    with DatabaseSessionsManager(settings.pg_dsn.unicode_string()) as db:
+        db.query(User).filter(User.id == user).update({"is_active": True}, synchronize_session= False)
+        db.commit()
+        
+    print("user marked online")
+        
+async def set_last_seen():
+    pass
 
+@sio.event
+async def connect(sid, token):
+    
+    token_payload: TokenPayload= decode_jwt(token, settings.encoding_secret_key)
+    user= token_payload.id
+    
+    await connect_user(user, sid)
+    await mark_user_online(user)
+    
 @sio.event
 async def disconnect(sid):
     await disconnect_user(sid)
-
+    # mark user as  offline and set last seen 
+    
 @sio.event
 async def message(sid, data):
     user_id = redis_client.get(f"socket:{sid}")

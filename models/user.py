@@ -17,7 +17,7 @@ class User(Base):
     joined = Column(TIMESTAMP, default=datetime.now, nullable=False)
 
     # Flags
-    is_active = Column(Boolean, default=True, nullable=False)
+    is_active = Column(Boolean, default=False, nullable=False)
     is_deleted = Column(Boolean, default=False, nullable=False)
 
     # Timestamps
