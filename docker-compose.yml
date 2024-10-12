@@ -1,6 +1,7 @@
 version: '3'
 
 services:
+
   zookeeper:
     image: wurstmeister/zookeeper:latest
     ports:
@@ -21,6 +22,8 @@ services:
       KAFKA_CREATE_TOPICS: "dummy_topic:1:1"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - zookeeper
 
   schema-registry:
     image: confluentinc/cp-schema-registry:latest
@@ -31,6 +34,8 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9093
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
       SCHEMA_REGISTRY_KAFKASTORE_TOPIC: _schemas
+    depends_on:
+      - kafka
 
   magic:
     image: "digitsy/kafka-magic"
@@ -44,3 +49,21 @@ services:
       KMAGIC_CONFIG_STORE_TYPE: "file"
       KMAGIC_CONFIG_STORE_CONNECTION: "Data Source=/config/KafkaMagicConfig.db;"
       KMAGIC_CONFIG_ENCRYPTION_KEY: "ENTER_YOUR_KEY_HERE"
+    depends_on:
+      - schema-registry
+
+  web_app:
+    image: webapp
+    restart: on-failure  # Restart on failure
+    build: 
+      dockerfile: docker/app/Dockerfile
+    depends_on:
+      - kafka  # Assuming web_app interacts with Kafka
+
+  chat_app:
+    image: chatapp
+    restart: on-failure  # Restart on failure
+    build:
+      dockerfile: docker/chat/Dockerfile
+    depends_on:
+      - kafka 
